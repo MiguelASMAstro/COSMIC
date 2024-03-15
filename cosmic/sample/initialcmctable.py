@@ -446,3 +446,79 @@ class InitialCMCTable(pd.DataFrame):
 
         sampler = get_sampler(format_, cls)
         return sampler(*args, **kwargs)
+    
+    @classmethod
+    def AddBlackHoles(cls, Singles, masses, radii, print_bhs=False):
+        """Append one or more single black holes to the cluster initial conditions
+        The radial and tangential velocities of the orbits are initially set to 0.
+        Therefore, the radii passed to this function define the initial radial
+        oscillations of the black hole orbits.
+
+        Parameters
+        ----------
+        Singles : DataFrame
+            Pandas DataFrame from the InitialCMCSingles function
+        masses : numeric or list-like
+            Mass or list of masses of black holes in units of Msun
+        radii : numeric or list-like
+            Radius or list of radii of black hole orbits in units of the virial radius 
+        
+        Optional Parameteres
+        --------------------
+        print_bhs : bool
+            Print out the black holes initial conditions
+
+        Returns
+        -------
+        Singles_modified : DataFrame
+            Pandas DataFrame from the InitialCMCSingles function including black holes
+        """
+        
+        if isinstance(masses, (int, float)):
+            if masses<=0:
+                raise ValueError("Mass must be greater than 0")
+            else:
+                masses = np.array([float(masses)])
+        else:
+            try:
+                masses = np.array(masses, dtype=float)
+            except AttributeError as e:
+                raise TypeError("List of masses must all be numeric")
+            if (masses<=0).any():
+                raise ValueError("Masses must be greater than 0")
+        
+        if isinstance(radii, (int, float)):
+            if radii<=0:
+                raise ValueError("Radius must be greater than 0")
+            else:
+                radii = np.array([float(radii)])
+        else:
+            try:
+                radii = np.array(radii, dtype=float)
+            except AttributeError as e:
+                raise TypeError("List of radii must all be numeric")
+            if (radii<=0).any():
+                raise ValueError("Radii must be greater than 0")
+        
+        if (len(masses) != len(radii)):
+            raise ValueError("masses and radii must be the same length")
+
+        Nbhs = len(masses)
+        
+        singles_bh = pd.DataFrame(
+            np.zeros((Nbhs, Singles.shape[1])), index=Nbhs*[0], columns=Singles.columns
+        )
+
+        starting_id = Singles["id"].max() + 1
+        singles_bh["id"] = np.arange(starting_id, starting_id + Nbhs)
+        singles_bh["k"] = Nbhs*[14]
+        singles_bh["m"] = masses
+        singles_bh["Reff"] = masses*2.122e-6 # G*Msun/c^2 in units of Rsun
+        singles_bh["r"] = radii
+        # no need to set vr,vt,binind, already 0
+        if print_bhs:
+            print(singles_bh)
+
+        Singles_modified = pd.concat([Singles, singles_bh])
+
+        return Singles_modified
