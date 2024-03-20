@@ -466,12 +466,11 @@ class InitialCMCTable(pd.DataFrame):
         Optional Parameteres
         --------------------
         print_bhs : bool
-            Print out the black holes initial conditions
+            Print the black hole initial conditions
 
         Returns
         -------
-        Singles_modified : DataFrame
-            Pandas DataFrame from the InitialCMCSingles function including black holes
+        None: Pandas dataframes are modified in place
         """
         
         if isinstance(masses, (int, float)):
@@ -504,9 +503,10 @@ class InitialCMCTable(pd.DataFrame):
             raise ValueError("masses and radii must be the same length")
 
         Nbhs = len(masses)
+        start_index = len(Singles)
         
         singles_bh = pd.DataFrame(
-            np.zeros((Nbhs, Singles.shape[1])), index=Nbhs*[0], columns=Singles.columns
+            np.zeros((Nbhs, Singles.shape[1])), index=list(range(start_index, start_index + Nbhs)), columns=Singles.columns
         )
 
         starting_id = Singles["id"].max() + 1
@@ -518,7 +518,13 @@ class InitialCMCTable(pd.DataFrame):
         # no need to set vr,vt,binind, already 0
         if print_bhs:
             print(singles_bh)
+        
+        # must add rows this way in order to modify the table inplace
+        # may not be great for very large numbers of new rows
+        for i, row in singles_bh.iterrows():
+            Singles.loc[i] = row
+        
+        # update class attribute
+        Singles.mass_of_cluster += np.sum(masses)
 
-        Singles_modified = pd.concat([Singles, singles_bh])
-
-        return Singles_modified
+        return
