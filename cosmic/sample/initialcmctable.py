@@ -448,7 +448,7 @@ class InitialCMCTable(pd.DataFrame):
         return sampler(*args, **kwargs)
     
     @classmethod
-    def AddBlackHoles(cls, Singles, masses, radii, print_bhs=False):
+    def AddBlackHoles(cls, Singles, Binaries, masses, radii, print_bhs=False):
         """Append one or more single black holes to the cluster initial conditions
         The radial and tangential velocities of the orbits are initially set to 0.
         Therefore, the radii passed to this function define the initial radial
@@ -457,6 +457,8 @@ class InitialCMCTable(pd.DataFrame):
         Parameters
         ----------
         Singles : DataFrame
+            Pandas DataFrame from the InitialCMCSingles function
+        Binaries : DataFrame
             Pandas DataFrame from the InitialCMCSingles function
         masses : numeric or list-like
             Mass or list of masses of black holes in units of Msun
@@ -508,8 +510,8 @@ class InitialCMCTable(pd.DataFrame):
         singles_bh = pd.DataFrame(
             np.zeros((Nbhs, Singles.shape[1])), index=list(range(start_index, start_index + Nbhs)), columns=Singles.columns
         )
-
-        starting_id = Singles["id"].max() + 1
+        
+        starting_id = max(Singles["id"].max(), Binaries["id1"].max(), Binaries["id2"].max()) + 1
         singles_bh["id"] = np.arange(starting_id, starting_id + Nbhs)
         singles_bh["k"] = Nbhs*[14]
         singles_bh["m"] = masses
