@@ -515,7 +515,7 @@ class InitialCMCTable(pd.DataFrame):
         singles_bh["id"] = np.arange(starting_id, starting_id + Nbhs)
         singles_bh["k"] = Nbhs*[14]
         singles_bh["m"] = masses
-        singles_bh["Reff"] = masses*2.122e-6 # G*Msun/c^2 in units of Rsun
+        singles_bh["Reff"] = 2*masses*2.122e-6 # G*Msun/c^2 in units of Rsun
         singles_bh["r"] = radii
         # no need to set vr,vt,binind, already 0
         if print_bhs:
