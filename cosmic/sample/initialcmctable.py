@@ -515,7 +515,7 @@ class InitialCMCTable(pd.DataFrame):
         singles_bh["id"] = np.arange(starting_id, starting_id + Nbhs)
         singles_bh["k"] = Nbhs*[14]
         singles_bh["m"] = masses
-        singles_bh["Reff"] = masses*2.122e-6 # G*Msun/c^2 in units of Rsun
+        singles_bh["Reff"] = 2*masses*2.122e-6 # G*Msun/c^2 in units of Rsun
         singles_bh["r"] = radii
         # in order to prevent weirdness, give the black holes small but nonzero velocity
         min_velocity = min(np.abs(Singles['vr'].min()),np.abs(Singles['vt'].min()))
