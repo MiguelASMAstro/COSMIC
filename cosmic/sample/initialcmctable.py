@@ -530,6 +530,8 @@ class InitialCMCTable(pd.DataFrame):
         for i, row in singles_bh.iterrows():
             Singles.loc[i] = row
         
+        Singles.sort_values(by='r', ascending=True, inplace=True)
+
         # update class attribute
         Singles.mass_of_cluster += np.sum(masses)
 
